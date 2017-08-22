@@ -7,14 +7,16 @@ import json
 import random
 import requests
 import MySQLdb
-import random
+
 #アドレスの末尾が/helloのときindexを実行
 def index(request):
-    return HttpResponse("Hello, World")
+    # return HttpResponse("Hello, World")
+    return HttpResponse(teacher("鈴木先生"))
 
 
 REPLY_ENDPOINT = 'https://api.line.me/v2/bot/message/reply'
-#ACCESS_TOKEN =
+#ACCESS_TOKEN ="アクセストークンの入力"
+HEADER = {
     "Content-Type": "application/json",
     "Authorization": "Bearer " + ACCESS_TOKEN
 }
@@ -55,19 +57,27 @@ def callback(request):
         reply_token = e['replyToken']  # 返信先トークンの取得
         message_type = e['message']['type']   # typeの取得
 
+        # if message_type == 'text':
+        #     text = e['message']['text']    # 受信メッセージの取得
+        #     reply += reply_text(reply_token, text)   # LINEにセリフを送信する関数
         if message_type == 'text':
             text = e['message']['text']    # 受信メッセージの取得
-            reply += reply_text(reply_token, text)   # LINEにセリフを送信する関数
+            reply += reply_text(reply_token, teacher(text))   # LINEにセリフを送信する関数
         elif message_type == 'sticker':
             p_Id = e['message']['packageId']
             s_Id = e['message']['stickerId']
-            reply += reply_sticker(reply_token, p_Id, s_Id)   # LINEにセリフを送信する関数
+            if 1 <= int(p_Id) <= 4:
+                reply += reply_sticker(reply_token, p_Id, s_Id)   # LINEにセリフを送信する関数
+            else:
+                reply +=  reply_text(reply_token, "www")   # LINEにセリフを送信する関数
+            #reply += reply_sticker(reply_token, p_Id, s_Id)   # LINEにセリフを送信する関数
 
     return HttpResponse(reply)  # テスト用
 
+
 def teacher(teacher_name):
-    
-    connection = MySQLdb.connect()
+
+    connection = MySQLdb.connect()#host, user,passwd,etc.
     cursor = connection.cursor()
     cursor.execute('SELECT*FROM tbl_teacher')
     columns=['性格','イメージ','授業','評価','情報']
@@ -76,6 +86,5 @@ def teacher(teacher_name):
 
     for row in result:
         if row[1]==teacher_name:
-            return (columns[id-2]+":"+row[id])
+            return (columns[id-2]+":"+str(row[id]))
     return "そのような先生はいません"
-
