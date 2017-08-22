@@ -12,10 +12,10 @@ from bot import create_answer
 
 REPLY_ENDPOINT = 'https://api.line.me/v2/bot/message/reply'
 
-DOCOMO_API_KEY = '6255615075614d4a3455552f57546d583366686d3332314746456e6e49714a49464d43325a667561685a33'
+#DOCOMO_API_KEY = '6255615075614d4a3455552f57546d583366686d3332314746456e6e49714a49464d43325a667561685a33'
 EVENT_REGISTER = '138311609100106403'
 EVENT_TALK = '138311609000106303'
-DOCOMO_ENDPOINT = 'https://api.apigw.smt.docomo.ne.jp/knowledgeQA/v1/ask'
+#DOCOMO_ENDPOINT = 'https://api.apigw.smt.docomo.ne.jp/knowledgeQA/v1/ask'
 MIZU_ENDPOINT = 'http://myconcierlb-708356017.us-west-2.elb.amazonaws.com:9000/api/ask'
 
 def post_text(reply_token, text):
@@ -73,7 +73,7 @@ def post_carousel(reply_token):
                           "title": "pizza cap",
                           "text": "本場ナポリの味を早く、安く。都内に17店舗展開するピザ専門店です。",
                           "actions": [
-
+                          
                               {
                                   "type": "uri",
                                   "label": "詳細を見る",
@@ -86,7 +86,7 @@ def post_carousel(reply_token):
                           "title": "本格パン工房 たけよし",
                           "text": "パンにとって一番大事だと思うものはなんですか？たけよしは、表面の焼き上がりこそが命であると考えています。",
                           "actions": [
-
+                          
                               {
                                   "type": "uri",
                                   "label": "詳細を見る",
@@ -99,7 +99,7 @@ def post_carousel(reply_token):
                           "title": "ヴェトナムTokyo",
                           "text": "東池袋にあるしたベトナム料理の老舗。40年以上人々に愛され続けてきたベトナム料理をご提供します。",
                           "actions": [
-
+                          
                               {
                                   "type": "uri",
                                   "label": "詳細を見る",
@@ -107,7 +107,7 @@ def post_carousel(reply_token):
                               }
                           ]
                         },
-
+           
                     ]
                 }
               }
