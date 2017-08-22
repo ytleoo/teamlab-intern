@@ -7,6 +7,7 @@ import json
 import random
 import requests
 
+#アドレスの末尾が/helloのときindexを実行
 def index(request):
     return HttpResponse("Hello, World")
 
@@ -24,7 +25,7 @@ def reply_text(reply_token, text):
           "messages":[
                 {
                     "type":"text",
-                    "text": "Hello World!"
+                    "text": text
                 }
             ]
     }
