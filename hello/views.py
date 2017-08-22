@@ -6,7 +6,8 @@ from django.http import HttpResponse
 import json
 import random
 import requests
-
+import MySQLdb
+import random
 #アドレスの末尾が/helloのときindexを実行
 def index(request):
     return HttpResponse("Hello, World")
@@ -63,3 +64,18 @@ def callback(request):
             reply += reply_sticker(reply_token, p_Id, s_Id)   # LINEにセリフを送信する関数
 
     return HttpResponse(reply)  # テスト用
+
+def teacher(teacher_name):
+    
+    connection = MySQLdb.connect()
+    cursor = connection.cursor()
+    cursor.execute('SELECT*FROM tbl_teacher')
+    columns=['性格','イメージ','授業','評価','情報']
+    result = cursor.fetchall()
+    id=random.randint(2,6)
+
+    for row in result:
+        if row[1]==teacher_name:
+            return (columns[id-2]+":"+row[id])
+    return "そのような先生はいません"
+
