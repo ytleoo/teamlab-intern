@@ -342,9 +342,10 @@ def teacher(teacher_name,content=random):
     columns=['性格','特徴','担当授業','総合評価','裏情報','裏情報２']
     musubi=['です。','だよ。','の授業を担当しています。','だよ。','らしいよ。','らしいよ']
     result = cursor.fetchall()
+    
+    if  teacher_name.find("先生")==-1:
+        teacher_name+="先生"
 
-    if teacher_name.endswith("先生",len(teacher_name)-2,len(teacher_name)-1)==False:
-        teacher_name=teacher_name+("先生")
     #特徴(第二引数)が渡されない場合、その先生の特徴をランダムに返す
     if content==random:
         id=random.randint(2,len(columns)+1)
