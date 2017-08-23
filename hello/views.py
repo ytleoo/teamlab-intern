@@ -88,9 +88,9 @@ def callback(request_json):
 #フォローされたときにfirstfollowを実行
 def firstfollow(request_json):#requestの情報をdict形式で受け取る
     emoji = {"happy":"0x100001", "ok":"0x100033", "yes":"0x1000A5", "love":"0x100078"}  #emojiのunicodeを格納
-    thank = "さつまいも大学スイートポテト学部の裏シラバスへようこそ"+emoji["yes"].encode('utf-8')
-    +"\n僕が先生や授業について様々な情報をおしえてあげるよ"+emoji["ok"].encode('utf-8')
-    +"\n気軽に話しかけてみてね"+emoji["love"].encode('utf-8')
+    thank = "さつまいも大学スイートポテト学部の裏シラバスへようこそ"+chr(emoji["yes"])
+    +"\n僕が先生や授業について様々な情報をおしえてあげるよ"+chr(emoji["ok"])
+    +"\n気軽に話しかけてみてね"+chr(emoji["love"])
     reply = ""
     #request_json = json.loads(request.body.decode('utf-8'))  # requestの情報をdict形式で取得
     for e in request_json['events']:
