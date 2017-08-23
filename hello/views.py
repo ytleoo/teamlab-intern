@@ -89,7 +89,7 @@ def select_data(text):
                 words.append(node[0])
     #print(words) #wordsに名刺の単語のみのリストが格納
 
-    if words[1] == '先生' or words[1] == 'せんせい':
+    if len(words) >= 2 and (words[1] == '先生' or words[1] == 'せんせい'):
         return teacher(words[0]+"先生")
     else:
         if len(words) == 1:
