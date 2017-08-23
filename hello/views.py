@@ -133,5 +133,3 @@ def Class(class_name):
         if row[1]==class_name:
             return (class_name+"の"+columns[id-2]+"は"+row[id]+"だよ。")
     return class_name+"は登録されていないよ"
-print(teacher("加藤先生"))
-print(Class("微分積分"))
