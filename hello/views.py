@@ -60,7 +60,7 @@ def reply_sticker(reply_token, p_Id, s_Id):
 
 def callback(request_json):
     reply = ""
-    request_json = json.loads(request.body.decode('utf-8'))  # requestの情報をdict形式で取得
+   #request_json = json.loads(request.body.decode('utf-8'))  # requestの情報をdict形式で取得
     for e in request_json['events']:
         reply_token = e['replyToken']  # 返信先トークンの取得
         message_type = e['message']['type']  # typeの取得
@@ -165,7 +165,7 @@ def Class(class_name):
             return (class_name + "の" + columns[id - 2] + "は" + row[id] + "だよ。")
     return class_name + "は登録されていないよ"
 
-
+"""
 def teacher(teacher_name):
     connection = MySQLdb.connect()  # host, user,passwd,etc.
     cursor = connection.cursor()
@@ -178,3 +178,4 @@ def teacher(teacher_name):
         if row[1] == teacher_name:
             return (columns[id - 2] + ":" + str(row[id]))
     return "そのような先生はいません"
+"""
