@@ -16,9 +16,9 @@ def index(request):
     # return HttpResponse("Hello, World")
     return HttpResponse(teacher("鈴木先生"))
 
-
 REPLY_ENDPOINT = 'https://api.line.me/v2/bot/message/reply'
-#ACCESS_TOKEN = #アクセスとーくん
+#ACCESS_TOKEN ="アクセストークンの入力"
+
 HEADER = {
     "Content-Type": "application/json",
     "Authorization": "Bearer " + ACCESS_TOKEN
@@ -65,7 +65,10 @@ def callback(request):
         #     reply += reply_text(reply_token, text)   # LINEにセリフを送信する関数
         if message_type == 'text':
             text = e['message']['text']    # 受信メッセージの取得
+
             reply += reply_text(reply_token, select_data(text))   # LINEにセリフを送信する関数
+        #   reply += reply_text(reply_token, teacher(text))   # LINEにセリフを送信する関数
+  
         elif message_type == 'sticker':
             p_Id = e['message']['packageId']
             s_Id = e['message']['stickerId']
@@ -135,3 +138,17 @@ def Class(class_name):
     return class_name+"は登録されていないよ"
 print(teacher("加藤先生"))
 print(Class("微分積分"))
+
+def teacher(teacher_name):
+
+    connection = MySQLdb.connect()#host, user,passwd,etc.
+    cursor = connection.cursor()
+    cursor.execute('SELECT*FROM tbl_teacher')
+    columns=['性格','イメージ','授業','評価','情報']
+    result = cursor.fetchall()
+    id=random.randint(2,6)
+
+    for row in result:
+        if row[1]==teacher_name:
+            return (columns[id-2]+":"+str(row[id]))
+    return "そのような先生はいません"
