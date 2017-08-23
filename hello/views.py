@@ -11,6 +11,8 @@ import requests
 import MySQLdb
 from natto import MeCab
 
+emoji = {"happy":0x100001, "ok":0x100033, "yes":0x1000A5, "love":0x100078, "pencil":0x100041}  #emojiのunicodeを格納
+
 
 # アドレスの末尾が/helloのときindexを実行
 def index(request):
@@ -29,7 +31,7 @@ HEADER = {
 
 
 
-#受け取った文字列をそのまま出力
+#文字列を出力
 def reply_text(reply_token, text):
     payload = {
         "replyToken": reply_token,
@@ -45,7 +47,7 @@ def reply_text(reply_token, text):
     return reply
 
 
-#受け取ったスタンプをそのまま出力
+#スタンプを出力
 def reply_sticker(reply_token, p_Id, s_Id):
     payload = {
         "replyToken": reply_token,
@@ -60,17 +62,6 @@ def reply_sticker(reply_token, p_Id, s_Id):
 
     requests.post(REPLY_ENDPOINT, headers=HEADER, data=json.dumps(payload))  # LINEにデータを送信
     return reply
-
-#フォローされたときにfirstfollowを実行
-def firstfollow(request_json):#requestの情報をdict形式で受け取る
-    emoji = {"happy":0x100001, "ok":0x100033, "yes":0x1000A5, "love":0x100078}  #emojiのunicodeを格納
-    thank = 'さつまいも大学スイートポテト学部の裏シラバスへようこそ'+chr(emoji["yes"])+'\n僕が先生や授業について様々な情報をおしえてあげるよ'+chr(emoji["ok"])+'\n気軽に話しかけてみてね'+chr(emoji["love"])
-    reply = ""
-    #request_json = json.loads(request.body.decode('utf-8'))  # requestの情報をdict形式で取得
-    for e in request_json['events']:
-        reply_token = e['replyToken']   #返信先トークンの取得
-        reply += reply_text(reply_token, thank)
-    return HttpResponse(reply)
 
 def main(request):
     request_json = json.loads(request.body.decode('utf-8'))  # requestの情報をdict形式で取得
@@ -105,30 +96,17 @@ def callback(request_json):
             #デフォルト以外のスタンプの時、"www"を出力
             else:
                 reply +=  reply_text(reply_token, "www")   # LINEにセリフを送信する関数
-
     return HttpResponse(reply)  # テスト用
 
-#フォローされたときにfirstfollowを実行
+#フォローされた時
 def firstfollow(request_json):#requestの情報をdict形式で受け取る
-    emoji = {"happy":"0x100001", "ok":"0x100033", "yes":"0x1000A5", "love":"0x100078"}  #emojiのunicodeを格納
-    thank = "さつまいも大学スイートポテト学部の裏シラバスへようこそ"+chr(emoji["yes"])
-    +"\n僕が先生や授業について様々な情報をおしえてあげるよ"+chr(emoji["ok"])
-    +"\n気軽に話しかけてみてね"+chr(emoji["love"])
+    global emoji
+    thank = 'さつまいも大学スイートポテト学部の裏シラバスへようこそ'+chr(emoji["yes"])+'\n僕が先生や授業について様々な情報をおしえてあげるよ'+chr(emoji["ok"])+'\n気軽に話しかけてみてね'+chr(emoji["love"])
     reply = ""
-    #request_json = json.loads(request.body.decode('utf-8'))  # requestの情報をdict形式で取得
     for e in request_json['events']:
         reply_token = e['replyToken']   #返信先トークンの取得
         reply += reply_text(reply_token, thank)
     return HttpResponse(reply)
-
-def main(request):
-    request_json = json.loads(request.body.decode('utf-8'))  # requestの情報をdict形式で取得
-    for e in request_json['events']:
-        event_type = e['type']
-        if event_type == "message":#スタンプやメッセージを受け取ったとき
-            callback(request_json)
-        elif event_type == "follow":#フォローされたとき
-            firstfollow(request_json)
 
 
 def select_data(text):
