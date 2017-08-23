@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from django.shortcuts import render
 
 # Create your views here.
@@ -7,15 +9,16 @@ import json
 import random
 import requests
 import MySQLdb
+from natto import MeCab
 
 #アドレスの末尾が/helloのときindexを実行
 def index(request):
     # return HttpResponse("Hello, World")
     return HttpResponse(teacher("鈴木先生"))
 
-
 REPLY_ENDPOINT = 'https://api.line.me/v2/bot/message/reply'
 #ACCESS_TOKEN ="アクセストークンの入力"
+
 HEADER = {
     "Content-Type": "application/json",
     "Authorization": "Bearer " + ACCESS_TOKEN
@@ -62,7 +65,10 @@ def callback(request):
         #     reply += reply_text(reply_token, text)   # LINEにセリフを送信する関数
         if message_type == 'text':
             text = e['message']['text']    # 受信メッセージの取得
-            reply += reply_text(reply_token, teacher(text))   # LINEにセリフを送信する関数
+
+            reply += reply_text(reply_token, select_data(text))   # LINEにセリフを送信する関数
+        #   reply += reply_text(reply_token, teacher(text))   # LINEにセリフを送信する関数
+  
         elif message_type == 'sticker':
             p_Id = e['message']['packageId']
             s_Id = e['message']['stickerId']
@@ -74,6 +80,64 @@ def callback(request):
 
     return HttpResponse(reply)  # テスト用
 
+def select_data(text):
+    mc = MeCab()
+    words = []
+    with MeCab('-F%m,%f[0],%h') as nm:
+        for n in nm.parse(text, as_nodes=True):
+            node = n.feature.split(',');
+            if len(node) != 3:
+                continue
+            if node[1] == '名詞':
+                words.append(node[0])
+    #print(words) #wordsに名刺の単語のみのリストが格納
+
+    if words[1] == '先生' or words[1] == 'せんせい':
+        return teacher(words[0]+"先生")
+    else:
+        if len(words) == 1:
+            tmp = words[0]
+        elif len(words) == 2:
+            tmp = words[0]+words[1]
+        elif len(words) == 3:
+            tmp = words[0]+words[1]+words[2]
+        else:
+            for i in range(words):
+                tmp = tmp + words[i]
+        return Class(tmp)
+
+
+def teacher(teacher_name):
+    # connection = MySQLdb.connect(host, user, passwd,etc.)
+    cursor = connection.cursor()
+    cursor.execute('SELECT*FROM tbl_teacher')
+    columns=['性格','特徴','担当授業','総合評価','裏情報','裏情報２']
+    musubi=['です。','だよ。','の授業を担当しています。','だよ。','らしいよ。','らしいよ']
+    result = cursor.fetchall()
+
+    for row in result:
+        id=random.randint(2,len(row)-1)
+        if row[1]==teacher_name:
+            if id==5:
+                return(teacher_name+'の評価は'+"☆"*int(row[id])+musubi[id-2])
+            else:
+                return (teacher_name+'は'+row[id]+musubi[id-2])
+            return (teacher_name+"は今学校にはいないよ")
+
+
+def Class(class_name):
+    # connection = MySQLdb.connect(host, user, passwd,etc.)
+    cursor = connection.cursor()
+    cursor.execute('SELECT*FROM tbl_class')
+    columns=['単位期待度','成績評価方法','ためになる度']
+    result = cursor.fetchall()
+    for row in result:
+        id=random.randint(2,len(row)-1)
+        if row[1]==class_name:
+            return (class_name+"の"+columns[id-2]+"は"+row[id]+"だよ。")
+    return class_name+"は登録されていないよ"
+print(teacher("加藤先生"))
+print(Class("微分積分"))
 
 def teacher(teacher_name):
 
