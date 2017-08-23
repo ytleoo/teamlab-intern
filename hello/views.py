@@ -11,6 +11,8 @@ import requests
 import MySQLdb
 from natto import MeCab
 
+emoji = {"happy":0x100001, "ok":0x100033, "yes":0x1000A5, "love":0x100078, "pencil":0x100041, "sad":0x10007C, "onpu":0x100039}  #emojiのunicodeを格納
+
 #アドレスの末尾が/helloのときindexを実行
 def index(request):
     # return HttpResponse("Hello, World")
@@ -89,7 +91,11 @@ def callback(request_json):
         #テキストを受け取ったとき出力する内容に関するデータベースを選択するメソッド
         if message_type == 'text':
             text = e['message']['text']    # 受信メッセージの取得
-            reply += reply_text(reply_token, select_data(text))   # LINEにセリフを送信する関数
+            OptionalWord=["ひま","つらい","誕生日","こんにちは","はじめまして","あ","ねえ"]
+            if text in OptionalWord:
+                return option(reply_token, text)    #特定のワードに返信
+            else:
+                reply += reply_text(reply_token, select_data(text))   # LINEにセリフを送信する関数
         #スタンプを受け取った時の処理
         elif message_type == 'sticker':
             p_Id = e['message']['packageId']
@@ -103,6 +109,27 @@ def callback(request_json):
 
 
     return HttpResponse(reply)  # テスト用
+
+#特定のワードに返信(隠しコマンド的要素)
+def option(reply_token, text):
+    global emoji
+    reply=""
+    if text == "ひま":
+        reply += reply_text(reply_token, 'この時間を活用して情報収集しよう'+chr(emoji["pencil"]))
+        reply += reply_sticker(reply_token, "3", "200")
+    elif text == "つらい":
+        reply += reply_text(reply_token, '元気出して'+chr(emoji["sad"])+ '\n私はあなたの味方だよ！')
+    elif text == "誕生日":
+        reply += reply_sticker(reply_token, "4", "278")
+        reply += reply_text(reply_token, chr(emoji["onpu"]))
+        reply += reply_sticker(reply_token, "3", "257")
+    elif text == "はじめまして":
+        reply += reply_text(reply_token, 'はじめまして！どんどん質問してねーっ'+chr(emoji["ok"]))
+    elif text == "あ" or text == "ねえ" :
+        reply += reply_text(reply_token, "なんだい？")
+        reply += reply_sticker(reply_token, "1", "120")
+    
+    return HttpResponse(reply)
 
 
 #どちらのデータベースにアクセスするか
