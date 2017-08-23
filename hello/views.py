@@ -11,49 +11,54 @@ import requests
 import MySQLdb
 from natto import MeCab
 
-#アドレスの末尾が/helloのときindexを実行
+
+# アドレスの末尾が/helloのときindexを実行
 def index(request):
     # return HttpResponse("Hello, World")
     return HttpResponse(teacher("鈴木先生"))
 
 #LINE APIの設定
 REPLY_ENDPOINT = 'https://api.line.me/v2/bot/message/reply'
+
 # ACCESS_TOKEN ="アクセストークン"
+
 HEADER = {
     "Content-Type": "application/json",
     "Authorization": "Bearer " + ACCESS_TOKEN
 }
 
 
+
 #受け取った文字列をそのまま出力
 def reply_text(reply_token, text):
     payload = {
-          "replyToken":reply_token,
-          "messages":[
-                {
-                    "type":"text",
-                    "text": text
-                }
-            ]
+        "replyToken": reply_token,
+        "messages": [
+            {
+                "type": "text",
+                "text": text
+            }
+        ]
     }
 
-    requests.post(REPLY_ENDPOINT, headers=HEADER, data=json.dumps(payload)) # LINEにデータを送信
+    requests.post(REPLY_ENDPOINT, headers=HEADER, data=json.dumps(payload))  # LINEにデータを送信
     return reply
+
 
 #受け取ったスタンプをそのまま出力
 def reply_sticker(reply_token, p_Id, s_Id):
     payload = {
-          "replyToken":reply_token,
-          "messages":[
-                {
-                    "type":"sticker",
-                    "packageId": p_Id,
-                    "stickerId": s_Id
-                }
-            ]
+        "replyToken": reply_token,
+        "messages": [
+            {
+                "type": "sticker",
+                "packageId": p_Id,
+                "stickerId": s_Id
+            }
+        ]
     }
 
-    requests.post(REPLY_ENDPOINT, headers=HEADER, data=json.dumps(payload)) # LINEにデータを送信
+    requests.post(REPLY_ENDPOINT, headers=HEADER, data=json.dumps(payload))  # LINEにデータを送信
     return reply
 
 #フォローされたときにfirstfollowを実行
@@ -80,12 +85,14 @@ def main(request):
 def callback(request_json):
     reply = ""
     #request_json = json.loads(request.body.decode('utf-8')) # requestの情報をdict形式で取得
+
     for e in request_json['events']:
         reply_token = e['replyToken']  # 返信先トークンの取得
-        message_type = e['message']['type']   # typeの取得
+        message_type = e['message']['type']  # typeの取得
 
         #テキストを受け取ったとき出力する内容に関するデータベースを選択するメソッド
         if message_type == 'text':
+
             text = e['message']['text']    # 受信メッセージの取得
             reply += reply_text(reply_token, select_data(text))   # LINEにセリフを送信する関数
         #スタンプを受け取った時の処理
@@ -99,8 +106,30 @@ def callback(request_json):
             else:
                 reply +=  reply_text(reply_token, "www")   # LINEにセリフを送信する関数
 
-
     return HttpResponse(reply)  # テスト用
+
+#フォローされたときにfirstfollowを実行
+def firstfollow(request_json):#requestの情報をdict形式で受け取る
+    emoji = {"happy":"0x100001", "ok":"0x100033", "yes":"0x1000A5", "love":"0x100078"}  #emojiのunicodeを格納
+    thank = "さつまいも大学スイートポテト学部の裏シラバスへようこそ"+chr(emoji["yes"])
+    +"\n僕が先生や授業について様々な情報をおしえてあげるよ"+chr(emoji["ok"])
+    +"\n気軽に話しかけてみてね"+chr(emoji["love"])
+    reply = ""
+    #request_json = json.loads(request.body.decode('utf-8'))  # requestの情報をdict形式で取得
+    for e in request_json['events']:
+        reply_token = e['replyToken']   #返信先トークンの取得
+        reply += reply_text(reply_token, thank)
+    return HttpResponse(reply)
+
+def main(request):
+    request_json = json.loads(request.body.decode('utf-8'))  # requestの情報をdict形式で取得
+    for e in request_json['events']:
+        event_type = e['type']
+        if event_type == "message":#スタンプやメッセージを受け取ったとき
+            callback(request_json)
+        elif event_type == "follow":#フォローされたとき
+            firstfollow(request_json)
+
 
 def select_data(text):
     mc = MeCab()
@@ -113,6 +142,7 @@ def select_data(text):
                 continue
             if node[1] == '名詞':
                 words.append(node[0])
+
     #[〇〇,先生]というリストを受け取ったとき
     if len(words) >= 2 and (words[1] == '先生' or words[1] == 'せんせい'):
         if len(words) ==2:
@@ -306,9 +336,6 @@ def select_data(text):
 
         return Class(Check_Class(tmp,words,num))
 
-
-
-
 def teacher(teacher_name,content=random):
     # connection = MySQLdb.connect(host, user, passwd,.etc)    cursor = connection.cursor()
     cursor.execute('SELECT*FROM tbl_teacher')
@@ -358,3 +385,4 @@ def Class(class_name,content=random):
         if row[1]==class_name:
             return (class_name+"の"+columns[id-2]+"は"+row[id]+"だよ。")
     return class_name+"は登録されていないよ"
+
