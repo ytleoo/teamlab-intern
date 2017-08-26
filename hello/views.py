@@ -128,15 +128,13 @@ def option(reply_token, text):
     elif text == "あ" or text == "ねえ" :
         reply += reply_text(reply_token, "なんだい？")
         reply += reply_sticker(reply_token, "1", "120")
-    
+
     return HttpResponse(reply)
 
-
-#どちらのデータベースにアクセスするか
-def select_data(text):
+#受け取った文より名詞のみを抽出→リストへ
+def noun(text):
     mc = MeCab()
     words = []
-    #受け取った文より名詞のみを抽出→リストへ
     with MeCab('-F%m,%f[0],%h') as nm:
         for n in nm.parse(text, as_nodes=True):
             node = n.feature.split(',');
@@ -144,12 +142,19 @@ def select_data(text):
                 continue
             if node[1] == '名詞':
                 words.append(node[0])
+    return words
+
+
+#どちらのデータベースにアクセスするか
+def select_data(text):
+    words = noun(text)
     #先生というワードが入ったリストを受け取ったとき
     if len(words) >= 2 and (words[1] == '先生' or words[1] == 'せんせい'):
         if len(words) ==2:
             return teacher(words[0])
         elif len(words) ==3:
             for ps in range(len(words)):
+                #「〜先生はどんな人？」　対策
                 if words[ps] == '人' or words[ps] == 'ひと':
                     return teacher(words[0])
             return teacher(words[0],words[2])
@@ -369,7 +374,7 @@ def teacher(teacher_name,content=random):
     columns=['性格','特徴','担当授業','総合評価','裏情報','裏情報２']
     musubi=['です。','だよ。','の授業を担当しています。','だよ。','らしいよ。','らしいよ']
     result = cursor.fetchall()
-    
+
     if  teacher_name.find("先生")==-1:
         teacher_name+="先生"
 
@@ -415,7 +420,3 @@ def Class(class_name,content=random):
         if row[1]==class_name:
             return (class_name+"の"+columns[id-2]+"は"+row[id]+"だよ。")
     return class_name+"は登録されていないよ"
-
-
-    # connection = MySQLdb.connect(host, user, passwd,.etc)
-    # ACCESS_TOKEN ="アクセストークン"
